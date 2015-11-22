@@ -11,7 +11,7 @@ var paths = {
   sass: ['./scss/**/*.scss']
 };
 
-gulp.task('default', ['copy-semantic', 'sass', 'move-semantic-assets']);
+gulp.task('default', ['semantic-move-css', 'sass', 'semantic-move-assets']);
 
 gulp.task('sass', function(done) {
   gulp.src('./scss/ionic.app.scss')
@@ -26,19 +26,8 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
-gulp.task('copy-semantic', function(){
-  gulp.src('./www/lib/semantic/dist/semantic.css')
-    .pipe(rename('_semantic.scss'))
-    .pipe(gulp.dest('./scss/vendor/'));
-});
-
-gulp.task('move-semantic-assets', function(){
-  gulp.src('./www/lib/semantic/dist/themes/**/*', {base: './www/lib/semantic/dist/'})
-    .pipe(gulp.dest('./www/css/'));
-});
-
 gulp.task('watch', function() {
-  gulp.watch(paths.sass, ['copy-semantic', 'sass', 'move-semantic-assets']);
+  gulp.watch(paths.sass, ['semantic-move-css', 'sass', 'semantic-move-assets']);
 });
 
 gulp.task('install', ['git-check'], function() {
@@ -59,4 +48,19 @@ gulp.task('git-check', function(done) {
     process.exit(1);
   }
   done();
+});
+
+/*
+  Tasks to copy and setup Semantic UI css and assets
+*/
+
+gulp.task('semantic-move-css', function(){
+  gulp.src('./www/lib/semantic/dist/semantic.css')
+    .pipe(rename('_semantic.scss'))
+    .pipe(gulp.dest('./scss/vendor/'));
+});
+
+gulp.task('semantic-move-assets', function(){
+  gulp.src('./www/lib/semantic/dist/themes/**/*', {base: './www/lib/semantic/dist/'})
+    .pipe(gulp.dest('./www/css/'));
 });
