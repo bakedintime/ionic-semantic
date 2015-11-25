@@ -14,6 +14,7 @@ var ngAnnotate  = require('gulp-ng-annotate');
 var uglify      = require('gulp-uglify');
 var debug       = require('gulp-debug');
 var runSequence = require('run-sequence');
+var replace     = require('gulp-replace-task');
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -26,12 +27,12 @@ gulp.task(
       'semantic-move-css',
       'sass',
       'semantic-move-assets',
+      'replace',
       'process-js',
       function(){console.log('ok');}
     );
   }
 );
-
 
 gulp.task(
   'prepare-build',
@@ -40,6 +41,7 @@ gulp.task(
       'semantic-move-css',
       'sass',
       'semantic-move-assets',
+      'replace',
       'process-js',
       function(){console.log('ok');}
     );
@@ -53,7 +55,6 @@ gulp.task('watch', function() {
       'semantic-move-css',
       'sass',
       'semantic-move-assets',
-      'process-js'
     ]
   );
 });
@@ -180,16 +181,24 @@ gulp.task('replace', function () {
   var filename = env + '.json';
   var settings = JSON.parse(fs.readFileSync('./www/config/' + filename, 'utf8'));
 
+  var patternArray = [];
+
+  for (key in settings) {
+    var p = {
+      match: key,
+      replacement: settings[key]
+    };
+    patternArray.push(p);
+  };
+
+  console.log(patternArray);
+
   // Replace each placeholder with the correct value for the variable.
-  gulp.src('www/js/constants/constants.js')
+  gulp.src('www/js/constants/constants_template.js')
     .pipe(debug({title: 'replacing environmental variables:'}))
     .pipe(replace({
-      patterns: [
-        {
-          match: 'apiUrl',
-          replacement: settings.apiUrl
-        }
-      ]
+      patterns: patternArray
     }))
-    .pipe(gulp.dest('www/dist/js'));
+    .pipe(rename('constants.js'))
+    .pipe(gulp.dest('www/js/constants/'));
 });
