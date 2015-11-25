@@ -1,2 +1,2 @@
 angular.module('constants', [])
-.constant('apiUrl', '@@apiUrl');
+.constant('API_URL', 'https://www.test.com');
