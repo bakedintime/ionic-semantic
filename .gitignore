@@ -7,3 +7,4 @@ plugins/
 www/css/themes
 ionic.app.css
 ionic.app.min.css
+www/dist
