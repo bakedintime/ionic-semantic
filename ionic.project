@@ -1,5 +1,5 @@
 {
-  "name": "happit",
+  "name": "ionic-semantic",
   "app_id": "",
   "gulpStartupTasks": [
     "sass",
