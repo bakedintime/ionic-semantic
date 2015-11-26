@@ -15,6 +15,7 @@ var uglify      = require('gulp-uglify');
 var debug       = require('gulp-debug');
 var runSequence = require('run-sequence');
 var replace     = require('gulp-replace-task');
+var file        = require('gulp-file');
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -44,6 +45,21 @@ gulp.task(
       'replace',
       'process-js',
       function(){console.log('ok');}
+    );
+  }
+);
+
+gulp.task(
+  'bootstrap',
+  function(){
+    runSequence(
+      'add-file-constants',
+      'add-file-dev-config',
+      'add-file-prod-config',
+      'add-file-localization-en',
+      'add-file-localization-es',
+      'add-file-app',
+      'add-file-index'
     );
   }
 );
@@ -202,3 +218,110 @@ gulp.task('replace', function () {
     .pipe(rename('constants.js'))
     .pipe(gulp.dest('www/js/constants/'));
 });
+
+
+/**
+  Bootstrap project with files
+ */
+gulp.task('add-file-constants', function() {
+  // Get the environment from the command line
+  var title = args.title || 'starter';
+  var comments = '//Automatically generated file. Edit to add new constants to the project.\n';
+  var str = 'angular.module("'+title+'.constants", [])\n.constant("API_URL", "@@API_URL");';
+   return file('constants_template.js', comments+str, { src: true }).pipe(gulp.dest('www/js/constants/'));
+});
+
+gulp.task('add-file-dev-config', function() {
+  var comments = '//Automatically generated file. Edit to add new development environment variables to the project.\n';
+  var str = '{"API_URL": "https://www.test.com"}';
+   return file('dev.json', comments+str, { src: true }).pipe(gulp.dest('www/config/'));
+});
+
+gulp.task('add-file-prod-config', function() {
+  var comments = '//Automatically generated file. Edit to add new production environment variables to the project.\n';
+  var str = '{"API_URL": "https://www.test.com"}';
+   return file('prod.json', comments+str, { src: true }).pipe(gulp.dest('www/config/'));
+});
+
+gulp.task('add-file-localization-en', function() {
+  // Get the environment from the command line
+  var title = args.title || 'starter';
+  var comments = '//Automatically generated file. Edit to add new localization in english to the project.\n';
+  var str = '{"title": "'+title+'"}';
+  return file('en.json', comments+str, { src: true }).pipe(gulp.dest('www/languages/'));
+});
+
+gulp.task('add-file-localization-es', function() {
+  // Get the environment from the command line
+  var title = args.title || 'starter';
+  var comments = '//Automatically generated file. Edit to add new localization in spanish to the project.\n';
+  var str = '{"title": "'+title+'"}';
+  return file('es.json', comments+str, { src: true }).pipe(gulp.dest('www/languages/'));
+});
+
+gulp.task('add-file-app', function() {
+  // Get the environment from the command line
+  var title = args.title || 'starter';
+  var comments = '//Automatically generated file. Edit to add new localization in spanish to the project.\n';
+  var str = 'angular.module("'+title+'", ["ionic", "'+title+'.constants", "pascalprecht.translate", "ngCookies"])\n'+
+    '.config(function($translateProvider){\n'+
+    '  // Translations configuration\n'+
+    '  $translateProvider.useStaticFilesLoader({\n'+
+    '    prefix: "/languages/",\n'+
+    '    suffix: ".json"\n'+
+    '  });\n'+
+    '  $translateProvider.useLocalStorage();\n'+
+    '   $translateProvider.preferredLanguage("en");\n'+
+    '})\n'+
+    '.run(function($ionicPlatform) {\n'+
+    '  $ionicPlatform.ready(function() {\n'+
+    '    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard\n'+
+    '    // for form inputs)\n'+
+    '    if(window.cordova && window.cordova.plugins.Keyboard) {\n'+
+    '      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);\n'+
+    '    }\n'+
+    '    if(window.StatusBar) {\n'+
+    '      StatusBar.styleDefault();\n'+
+    '    }\n'+
+    '  });\n'+
+    '})';
+  return file('app.js', comments+str, { src: true }).pipe(gulp.dest('www/js/'));
+});
+
+gulp.task('add-file-index', function() {
+  // Get the environment from the command line
+  var title = args.title || 'starter';
+  var comments = '//Automatically generated file. Edit to add new localization in spanish to the project.\n';
+  var str = '<!DOCTYPE html>\n'+
+      '<html>\n'+
+      '  <head>\n'+
+      '    <meta charset="utf-8">\n'+
+      '    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">\n'+
+      '    <title>'+title+'</title>\n'+
+      '    <!-- compiled css output -->\n'+
+      '    <link href="dist/css/ionic.app.css" rel="stylesheet">\n'+
+      '  </head>\n'+
+      '  <body ng-app="'+title+'">\n'+
+      '    <ion-pane>\n'+
+      '      <ion-header-bar class="bar-stable">\n'+
+      '        <h1 class="title">{{ "title" | translate}}</h1>\n'+
+      '      </ion-header-bar>\n'+
+      '      <ion-content>\n'+
+      '      </ion-content>\n'+
+      '    </ion-pane>\n'+
+
+      '    <!-- ionic/angularjs js -->\n'+
+      '    <script src="dist/js/ionic.min.js"></script>\n'+
+      '    <script src="dist/js/angular-mods.min.js"></script>\n'+
+      '    <script src="dist/js/vendor.min.js"></script>\n'+
+      '    <!-- cordova script (this will be a 404 during development) -->\n'+
+      '    <script src="cordova.js"></script>\n'+
+
+      '    <!-- your apps js -->\n'+
+      '    <script src="dist/js/build.min.js"></script>\n'+
+      '  </body>\n'+
+      '</html>';
+  return file('index.html', comments+str, { src: true }).pipe(gulp.dest('www/'));
+});
+
+
